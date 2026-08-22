@@ -44,26 +44,35 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-The app seeds a realistic demo workspace on first load (goals, obligations,
-two generated weeks, focus sessions, two weeks of browsing history) so every
-screen has life immediately.
+The app seeds sample **goals, obligations and a generated schedule** on first
+load so planning screens have life immediately. **Stats start empty** — real
+numbers arrive from the focus timer and the Chrome extension, never from fake
+data.
 
-## Chrome extension (optional)
+## AI provider: Google Gemini (default)
 
-`extension/` contains an MV3 companion that tracks real browsing time and
-streams it into the app, replacing demo site data. Install via
-`chrome://extensions` → Developer mode → **Load unpacked** → select the folder.
-See `extension/README.md`.
+Orbit talks to **Google Gemini** through Gemini's OpenAI-compatible endpoint:
 
-## AI providers
+1. Grab a free API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Settings → AI provider → **Google Gemini** (already the default)
+3. Model defaults to `gemini-2.5-flash` (try `gemini-2.5-pro` for heavier tasks)
 
-Settings → AI provider: OpenAI, OpenRouter or any OpenAI-compatible endpoint.
-Requests are proxied through `/api/ai/chat` (with a direct-browser fallback).
+OpenAI, OpenRouter and any custom OpenAI-compatible endpoint are still
+supported — requests go through `/api/ai/chat` with a direct-browser fallback,
+and your key never leaves your browser.
+
 No key? Everything still works via the built-in engines:
 
 - Subgoals: verb-aware templates scaled by deadline urgency
 - Scheduler: obligation-pinning planner with deep-work windows, breaks & lunch
 - Coach: rule engine over your live stats
+
+## Chrome extension (optional)
+
+`extension/` contains an MV3 companion that tracks real browsing time and
+streams it into the app — this is how the Stats page gets real data once the
+seeded-free stats are empty. Install via `chrome://extensions` → Developer
+mode → **Load unpacked** → select the folder. See `extension/README.md`.
 
 ## Scripts
 

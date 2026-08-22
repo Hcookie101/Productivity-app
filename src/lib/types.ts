@@ -110,7 +110,7 @@ export interface AppPrefs {
   includeLunch: boolean;
 }
 
-export type AIProvider = "openai" | "openrouter" | "custom";
+export type AIProvider = "gemini" | "openai" | "openrouter" | "custom";
 
 export interface AISettings {
   provider: AIProvider;

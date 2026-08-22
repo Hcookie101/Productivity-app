@@ -1,7 +1,6 @@
 import { startOfISOWeek, subDays } from "date-fns";
 import { DEFAULT_PREFS, GOAL_COLORS } from "./constants";
 import { formatDateISO, uid } from "./utils";
-import { classifyDomain } from "./domains";
 import { generatePlan } from "./scheduler";
 import type {
   AppPrefs,
@@ -11,17 +10,6 @@ import type {
   SiteStat,
   WeekPlan,
 } from "./types";
-
-function mulberry32(seed: number): () => number {
-  let a = seed;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 export const PREFS: AppPrefs = { ...DEFAULT_PREFS };
 
@@ -133,92 +121,6 @@ export function seedWeeks(obligations: Obligation[], goals: Goal[]): Record<stri
   return weeks;
 }
 
-/** 7 days of focus + occasional distracted sessions (today is partial). */
-export function seedSessions(now: Date): FocusSession[] {
-  const rnd = mulberry32(7);
-  const sessions: FocusSession[] = [];
-  for (let i = 6; i >= 0; i -= 1) {
-    const dayDate = subDays(now, i);
-    const isToday = i === 0;
-    const weekend = [0, 6].includes(dayDate.getDay());
-    const totalFocus = isToday
-      ? Math.round(20 + rnd() * 55)
-      : weekend
-        ? Math.round(40 + rnd() * 60)
-        : Math.round(90 + rnd() * 100);
-
-    let clock = isToday ? 8 * 60 : (8 + rnd() * 8) * 60;
-    let placed = 0;
-    let guard = 0;
-    while (placed < totalFocus && guard++ < 12) {
-      const len = Math.round(15 + rnd() * 35);
-      const start = new Date(dayDate);
-      start.setHours(Math.floor(clock / 60), Math.round(clock % 60), 0, 0);
-      const end = new Date(start.getTime() + len * 60000);
-      if (isToday && end.getTime() > now.getTime()) break;
-      sessions.push({
-        id: uid("ses"),
-        start: start.getTime(),
-        end: end.getTime(),
-        kind: "focus",
-        title: "Deep work session",
-      });
-      placed += len;
-      clock += len + 25;
-    }
-    if (!isToday && rnd() > 0.45) {
-      const local = new Date(dayDate);
-      local.setHours(20, Math.round(rnd() * 40), 0, 0);
-      sessions.push({
-        id: uid("ses"),
-        start: local.getTime(),
-        end: local.getTime() + Math.round(12 + rnd() * 22) * 60000,
-        kind: "distracted",
-      });
-    }
-  }
-  return sessions;
-}
-
-/** Two weeks of plausible browsing history per site. */
-export function seedSiteStats(now: Date): SiteStat[] {
-  const rnd = mulberry32(42);
-  const profiles: { host: string; base: number }[] = [
-    { host: "github.com", base: 42 },
-    { host: "gmail.com", base: 34 },
-    { host: "youtube.com", base: 96 },
-    { host: "twitter.com", base: 78 },
-    { host: "reddit.com", base: 40 },
-    { host: "stackoverflow.com", base: 31 },
-    { host: "notion.so", base: 26 },
-    { host: "netflix.com", base: 46 },
-    { host: "linkedin.com", base: 14 },
-    { host: "spotify.com", base: 22 },
-    { host: "medium.com", base: 18 },
-    { host: "amazon.com", base: 11 },
-  ];
-
-  return profiles.map(({ host, base }) => {
-    const history: Record<string, number> = {};
-    for (let d = 12; d >= 0; d -= 1) {
-      const date = subDays(now, d);
-      const dow = date.getDay();
-      let noise = 0.6 + rnd() * 0.9;
-      const category = classifyDomain(host);
-      const workLike = category === "Work" || category === "Learning";
-      if (workLike && (dow === 0 || dow === 6)) noise *= 0.5;
-      if (!workLike && (dow === 0 || dow === 6)) noise *= 1.3;
-      if (d === 0) noise *= Math.max(0.25, now.getHours() / 24);
-      history[formatDateISO(date)] = Math.max(5, Math.round(base * noise));
-    }
-    return {
-      domain: host,
-      history,
-      lastVisited: Date.now() - Math.round(rnd() * 2.5 * 3600 * 1000),
-    };
-  });
-}
-
 export interface SeedBundle {
   goals: Goal[];
   obligations: Obligation[];
@@ -227,14 +129,19 @@ export interface SeedBundle {
   siteStats: SiteStat[];
 }
 
-export function seedBundle(now: Date = new Date()): SeedBundle {
+/**
+ * Seeds goals/obligations/schedule only. Stats (focus sessions & browsing)
+ * intentionally start EMPTY — real data comes from the focus timer and the
+ * Chrome extension.
+ */
+export function seedBundle(): SeedBundle {
   const goals = seedGoals();
   const obligations = seedObligations();
   return {
     goals,
     obligations,
     weeks: seedWeeks(obligations, goals),
-    sessions: seedSessions(now),
-    siteStats: seedSiteStats(now),
+    sessions: [],
+    siteStats: [],
   };
 }

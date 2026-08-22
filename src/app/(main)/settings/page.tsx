@@ -142,11 +142,20 @@ export default function SettingsPage() {
                 onChange={(e) => updateSettings({ model: e.target.value })}
               />
             </Field>
-            <Field label="API key" hint="Stored only in this browser's local storage.">
+                        <Field
+              label="API key"
+              hint={
+                settings.provider === "gemini"
+                  ? "Free keys at aistudio.google.com/apikey — stored only in this browser."
+                  : settings.provider === "openrouter"
+                    ? "Keys at openrouter.ai/keys — stored only in this browser."
+                    : "Stored only in this browser's local storage."
+              }
+            >
               <TextInput
                 type="password"
                 value={settings.apiKey}
-                placeholder="sk-…"
+                placeholder={settings.provider === "gemini" ? "AIza…" : "sk-…"}
                 onChange={(e) => {
                   updateSettings({ apiKey: e.target.value });
                   setTestOk(null);
@@ -269,7 +278,7 @@ export default function SettingsPage() {
               onChange={(e) => void onImportFile(e.target.files?.[0])}
             />
             <Button variant="subtle" size="sm" onClick={() => seedDemo()} icon={<RefreshCcw className="h-4 w-4" />}>
-              Reload demo data
+              Restore sample goals & schedule
             </Button>
             <Button variant="danger" size="sm" icon={<Trash2 className="h-4 w-4" />} onClick={() => setConfirmReset(true)}>
               Reset everything

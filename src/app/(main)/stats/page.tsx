@@ -52,6 +52,7 @@ export default function StatsPage() {
     }),
     [stats, state.goals]
   );
+  const hasFocusData = stats.days.some((d) => d.focusedMin > 0);
 
   return (
     <div className="space-y-6">
@@ -95,6 +96,7 @@ export default function StatsPage() {
           <h3 className="font-display text-[15px] font-semibold text-ink">Planned vs actual focus</h3>
           <p className="text-xs text-faint">Last 7 days · minutes</p>
           <div className="mt-4 h-64">
+            {hasFocusData ? (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats.days} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
                 <defs>
@@ -129,6 +131,15 @@ export default function StatsPage() {
                 />
               </AreaChart>
             </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line px-6 text-center">
+                <p className="text-sm font-medium text-muted">No focus logged yet</p>
+                <p className="max-w-xs text-xs leading-5 text-faint">
+                  Start a session with the focus timer on the Today page — your planned-vs-actual chart will build
+                  itself from real sessions.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -208,7 +219,8 @@ export default function StatsPage() {
             })}
             {stats.sites.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted">
-                No site data yet — install the Orbit extension or wait for demo sync.
+                No browsing data yet — install the Orbit Chrome extension
+                (<code className="rounded bg-white/[0.06] px-1">extension/</code> folder) and it will start tracking automatically.
               </p>
             ) : null}
           </div>

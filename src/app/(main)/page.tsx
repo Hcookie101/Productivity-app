@@ -117,6 +117,10 @@ export default function DashboardPage() {
                 biggest distractor — {stats.topDistractor ? Math.round(stats.topDistractor.weekMin / 60) : 0}h this
                 week.
               </div>
+            ) : stats.sites.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-line p-3 text-[12px] leading-4.5 text-faint">
+                No browsing data yet — install the Orbit Chrome extension and your real numbers will appear here.
+              </div>
             ) : (
               <div className="rounded-xl border border-line bg-emerald-500/[0.06] p-3 text-[12px] leading-4.5 text-emerald-300/90">
                 No heavy distractor patterns this week. Clean orbit. 🛰️

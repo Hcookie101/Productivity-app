@@ -3,7 +3,8 @@ import type { AIProvider, AISettings, AppPrefs, Priority, SiteCategory, SlotKind
 export const APP_NAME = "Orbit";
 export const APP_TAGLINE = "Every goal, obligation & focus hour — in one orbit.";
 export const STORAGE_KEY = "orbit-app-v1";
-export const SEED_VERSION = 4;
+/** Bump to force a re-seed on next load (v5: stats start empty, no fake data). */
+export const SEED_VERSION = 5;
 
 export const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 export const DAY_LABELS_FULL = [
@@ -69,6 +70,12 @@ export const AI_PROVIDERS: {
   base: string;
 }[] = [
   {
+    value: "gemini",
+    label: "Google Gemini",
+    modelDefault: "gemini-2.5-flash",
+    base: "https://generativelanguage.googleapis.com/v1beta/openai",
+  },
+  {
     value: "openai",
     label: "OpenAI",
     modelDefault: "gpt-4o-mini",
@@ -89,7 +96,7 @@ export const AI_PROVIDERS: {
 ];
 
 export const DEFAULT_AI: AISettings = {
-  provider: "openai",
+  provider: "gemini",
   model: AI_PROVIDERS[0].modelDefault,
   apiKey: "",
   baseUrl: AI_PROVIDERS[0].base,
