@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Orbit tracker</title>
+    <style>
+      body {
+        width: 280px;
+        margin: 0;
+        padding: 14px;
+        font: 13px/1.45 system-ui, sans-serif;
+        background: #0b0f1c;
+        color: #e9ecf5;
+      }
+      h1 { font-size: 14px; margin: 0 0 2px; }
+      p.sub { margin: 0 0 10px; color: #5c6682; font-size: 11px; }
+      .row { display: flex; justify-content: space-between; padding: 4px 0; color: #c7cede; }
+      .row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+      .total {
+        margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,0.2);
+        display: flex; justify-content: space-between; font-weight: 700;
+      }
+      .empty { color: #9aa3bb; font-size: 12px; padding: 12px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>🛰️ Orbit tracker</h1>
+    <p class="sub">Browsing time today</p>
+    <div id="list"><div class="empty">Collecting… keep this browser open.</div></div>
+    <div class="total"><span>Total</span><span id="total">—</span></div>
+    <script src="popup.js"></script>
+  </body>
+</html>

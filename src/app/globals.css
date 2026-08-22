@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+:root {
+  --orbit-bg: #05060d;
+  --orbit-panel: #0b0f1c;
+  --orbit-card: #101627;
+  --orbit-line: rgba(148, 163, 184, 0.14);
+  --orbit-ink: #e9ecf5;
+  --orbit-muted: #9aa3bb;
+  --orbit-faint: #5c6682;
+}
+
+@theme inline {
+  --color-background: var(--orbit-bg);
+  --color-panel: var(--orbit-panel);
+  --color-card: var(--orbit-card);
+  --color-line: var(--orbit-line);
+  --color-ink: var(--orbit-ink);
+  --color-muted: var(--orbit-muted);
+  --color-faint: var(--orbit-faint);
+  --color-iris: #8b6cff;
+  --color-iris-soft: #b7a6ff;
+  --color-mint: #2dd4bf;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-space), var(--font-inter), ui-sans-serif, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--orbit-ink);
+  font-family: var(--font-sans);
+  background-color: var(--orbit-bg);
+  background-image:
+    radial-gradient(1100px 520px at 12% -8%, rgba(139, 108, 255, 0.16), transparent 62%),
+    radial-gradient(900px 480px at 88% -6%, rgba(14, 165, 233, 0.12), transparent 60%),
+    radial-gradient(1200px 700px at 50% 120%, rgba(45, 212, 191, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(139, 108, 255, 0.45);
+  color: #fff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 108, 255, 0.35) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(139, 108, 255, 0.32);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- custom surfaces & text ---------- */
+
+.app-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  border: 1px solid var(--orbit-line);
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 14px 34px -18px rgba(0, 0, 0, 0.65);
+}
+
+.glass-nav {
+  background: rgba(8, 11, 22, 0.72);
+  backdrop-filter: blur(16px);
+  border-color: var(--orbit-line);
+}
+
+.text-grad {
+  background-image: linear-gradient(135deg, #c4b5fd 0%, #93c5fd 45%, #7dd3fc 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ring-glow {
+  box-shadow:
+    0 0 0 1px rgba(139, 108, 255, 0.4),
+    0 0 36px -4px rgba(139, 108, 255, 0.45);
+}
+
+.hover-lift {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  border-color: rgba(167, 139, 250, 0.5);
+  box-shadow: 0 16px 40px -16px rgba(139, 108, 255, 0.35);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+/* ---------- animations ---------- */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(45, 212, 191, 0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease both;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-floaty {
+  animation: floaty 5s ease-in-out infinite;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    100deg,
+    rgba(148, 163, 184, 0.12) 40%,
+    rgba(148, 163, 184, 0.24) 50%,
+    rgba(148, 163, 184, 0.12) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}

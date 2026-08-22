@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Orbit — Browsing Time Tracker",
+  "version": "1.0.0",
+  "description": "Feeds real browsing time into the Orbit productivity app so its AI coach works on real data.",
+  "permissions": ["tabs", "alarms", "storage", "idle"],
+  "host_permissions": ["http://localhost:3000/*", "http://127.0.0.1:3000/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:3000/*", "http://127.0.0.1:3000/*"],
+      "js": ["app-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Orbit tracker"
+  }
+}
