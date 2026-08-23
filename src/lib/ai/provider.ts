@@ -53,9 +53,12 @@ export async function chatRaw(
       // fall through to the direct call
     }
   }
-  const { url, model, key } = endpoint(settings);
+    const { url, model, key } = endpoint(settings);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 120_000);
+  // Thinking-style models can burn a tiny output budget on reasoning before
+  // writing any text — keep a sane floor.
+  const maxTokens = Math.max(1024, opts.maxTokens ?? 2200);
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -67,7 +70,7 @@ export async function chatRaw(
         model,
         messages,
         temperature: opts.temperature ?? 0.4,
-        max_tokens: opts.maxTokens ?? 2200,
+        max_tokens: maxTokens,
       }),
       signal: controller.signal,
     });
@@ -76,9 +79,15 @@ export async function chatRaw(
       throw new Error(`AI request failed (${res.status}): ${detail.slice(0, 220)}`);
     }
     const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
+      choices?: { message?: { content?: string | null }; text?: string | null }[];
     };
-    const content = data?.choices?.[0]?.message?.content;
+    const raw = data?.choices?.[0]?.message?.content;
+    const content =
+      typeof raw === "string" && raw.trim().length > 0
+        ? raw
+        : typeof data?.choices?.[0]?.text === "string" && data.choices[0].text.trim().length > 0
+          ? data.choices[0].text
+          : null;
     if (!content) throw new Error("AI returned an empty response");
     return content;
   } finally {

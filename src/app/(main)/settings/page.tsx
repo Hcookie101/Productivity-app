@@ -63,13 +63,12 @@ export default function SettingsPage() {
     setTesting(true);
     setTestOk(null);
     try {
-      const res = await fetch("/api/ai/chat", {
+            const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           settings,
           messages: [{ role: "user", content: "Reply with exactly: OK" }],
-          maxTokens: 8,
         }),
       });
       if (!res.ok) {

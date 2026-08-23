@@ -31,8 +31,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No messages" }, { status: 400 });
   }
 
-  const baseUrl = (settings.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+    const baseUrl = (settings.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
   const model = settings.model?.trim() || "gpt-4o-mini";
+
+  // Thinking-style models (e.g. Gemini) can spend the whole output budget on
+  // internal reasoning before emitting any text — keep a sane floor so the
+  // response is never truncated to nothing.
+  const requested = Number(body.maxTokens);
+  const maxTokens =
+    Number.isFinite(requested) && requested > 0
+      ? Math.max(1024, Math.min(8192, Math.round(requested)))
+      : 2200;
 
   let res: Response;
   try {
@@ -46,7 +55,7 @@ export async function POST(req: Request) {
         model,
         messages,
         temperature: body.temperature ?? 0.4,
-        max_tokens: body.maxTokens ?? 2200,
+        max_tokens: maxTokens,
       }),
       signal: AbortSignal.timeout(120_000),
     });
@@ -62,10 +71,23 @@ export async function POST(req: Request) {
     );
   }
 
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  const content = data?.choices?.[0]?.message?.content;
+  const data = (await res.json()) as {
+    choices?: { message?: { content?: string | null }; text?: string | null; finish_reason?: string }[];
+  };
+  const choice = data?.choices?.[0];
+  const content =
+    typeof choice?.message?.content === "string" && choice.message.content.trim().length > 0
+      ? choice.message.content
+      : typeof choice?.text === "string" && choice.text.trim().length > 0
+        ? choice.text
+        : null;
   if (!content) {
-    return NextResponse.json({ error: "Empty upstream response" }, { status: 502 });
+    return NextResponse.json(
+      {
+        error: `Empty upstream response (finish_reason: ${choice?.finish_reason ?? "unknown"}). If this keeps happening, check the model name in Settings.`,
+      },
+      { status: 502 }
+    );
   }
   return NextResponse.json({ content });
 }
