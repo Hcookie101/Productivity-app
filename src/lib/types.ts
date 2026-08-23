@@ -127,7 +127,6 @@ export interface Toast {
 }
 
 export interface AppState {
-  seedVersion: number;
   goals: Goal[];
   obligations: Obligation[];
   /** weekStartKey -> plan */
@@ -173,7 +172,6 @@ export interface AppState {
   pushToast: (t: Omit<Toast, "id">) => void;
   dismissToast: (id: string) => void;
 
-  seedDemo: () => void;
   resetAll: () => void;
   importJson: (json: string) => boolean;
 }

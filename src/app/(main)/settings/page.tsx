@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, Upload, RefreshCcw, Trash2, KeyRound, SlidersHorizontal, Database, CheckCircle2 } from "lucide-react";
+import { Download, Upload, Trash2, KeyRound, SlidersHorizontal, Database, CheckCircle2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { AI_PROVIDERS } from "@/lib/constants";
 import type { AIProvider } from "@/lib/types";
@@ -17,7 +17,6 @@ export default function SettingsPage() {
   const settings = useStore((s) => s.settings);
   const updatePrefs = useStore((s) => s.updatePrefs);
   const updateSettings = useStore((s) => s.updateSettings);
-  const seedDemo = useStore((s) => s.seedDemo);
   const resetAll = useStore((s) => s.resetAll);
   const importJson = useStore((s) => s.importJson);
   const pushToast = useStore((s) => s.pushToast);
@@ -270,16 +269,13 @@ export default function SettingsPage() {
             <Button variant="subtle" size="sm" onClick={() => fileRef.current?.click()} icon={<Upload className="h-4 w-4" />}>
               Import JSON
             </Button>
-            <input
+                        <input
               ref={fileRef}
               type="file"
               accept="application/json,.json"
               className="hidden"
               onChange={(e) => void onImportFile(e.target.files?.[0])}
             />
-            <Button variant="subtle" size="sm" onClick={() => seedDemo()} icon={<RefreshCcw className="h-4 w-4" />}>
-              Restore sample goals & schedule
-            </Button>
             <Button variant="danger" size="sm" icon={<Trash2 className="h-4 w-4" />} onClick={() => setConfirmReset(true)}>
               Reset everything
             </Button>

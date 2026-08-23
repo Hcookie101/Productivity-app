@@ -1,8 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { ActiveTimer, AppState, FocusSession, Goal, Obligation, SiteStat, WeekPlan } from "./types";
-import { DEFAULT_AI, DEFAULT_PREFS, SEED_VERSION, STORAGE_KEY } from "./constants";
-import { seedBundle } from "./seed";
+import { AI_PROVIDERS, DEFAULT_AI, DEFAULT_PREFS, STORAGE_KEY } from "./constants";
 import { uid } from "./utils";
 
 export function timerElapsed(t: ActiveTimer | null, now: number): number {
@@ -14,7 +13,6 @@ export function timerElapsed(t: ActiveTimer | null, now: number): number {
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      seedVersion: 0,
       goals: [],
       obligations: [],
       weeks: {},
@@ -180,21 +178,9 @@ export const useStore = create<AppState>()(
       pushToast: (t) => set((s) => ({ toasts: [...s.toasts.slice(-4), { ...t, id: uid("toast") }] })),
       dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 
-      // ---------- data lifecycle ----------
-      seedDemo: () => {
-        const bundle = seedBundle();
-        set({
-          seedVersion: SEED_VERSION,
-          goals: bundle.goals,
-          obligations: bundle.obligations,
-          weeks: bundle.weeks,
-          sessions: bundle.sessions,
-          siteStats: bundle.siteStats,
-        });
-      },
+            // ---------- data lifecycle ----------
       resetAll: () =>
         set({
-          seedVersion: 0,
           goals: [],
           obligations: [],
           weeks: {},
@@ -204,12 +190,11 @@ export const useStore = create<AppState>()(
           prefs: { ...DEFAULT_PREFS },
           toasts: [],
         }),
-      importJson: (json) => {
+            importJson: (json) => {
         try {
           const data = typeof json === "string" ? JSON.parse(json) : json;
           if (!data || typeof data !== "object") return false;
           set({
-            seedVersion: SEED_VERSION,
             goals: sanitizeGoals(data.goals),
             obligations: sanitizeObligations(data.obligations),
             weeks: sanitizeWeeks(data.weeks),
@@ -225,11 +210,32 @@ export const useStore = create<AppState>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
+      // v1 -> v2: drop all seeded/sample content; keep the user's settings & preferences.
+      migrate: (persisted) => {
+        const p = (persisted ?? {}) as Partial<AppState>;
+        const settings = { ...DEFAULT_AI, ...(p.settings ?? {}) };
+        if (
+          settings.provider === "gemini" &&
+          (!settings.model || settings.model === "gemini-2.5-flash")
+        ) {
+          settings.model =
+            AI_PROVIDERS.find((x) => x.value === "gemini")?.modelDefault ?? settings.model;
+        }
+        return {
+          goals: [],
+          obligations: [],
+          weeks: {},
+          sessions: [],
+          siteStats: [],
+          timer: null,
+          prefs: { ...DEFAULT_PREFS, ...(p.prefs ?? {}) },
+          settings,
+        };
+      },
       partialize: (state) =>
         ({
-          seedVersion: state.seedVersion,
           goals: state.goals,
           obligations: state.obligations,
           weeks: state.weeks,
@@ -281,16 +287,4 @@ function sanitizeWeeks(w: unknown): Record<string, WeekPlan> {
     if (value && Array.isArray(value.slots)) out[key] = value;
   }
   return out;
-}
-
-/** Seed demo data on first load (called once from the client layout). */
-export function maybeBootstrap(): void {
-  const { seedVersion } = useStore.getState();
-  if (seedVersion !== SEED_VERSION) {
-    try {
-      useStore.getState().seedDemo();
-    } catch (e) {
-      console.error("Orbit seed failed", e);
-    }
-  }
 }

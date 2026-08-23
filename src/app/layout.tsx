@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
-import { AppBootstrap } from "@/components/AppBootstrap";
 import { ExtensionBridge } from "@/components/ExtensionBridge";
 import { ToastViewport } from "@/components/ui/Toast";
 
@@ -30,7 +29,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${space.variable}`}>
       <body className="min-h-dvh font-sans antialiased">
-        <AppBootstrap />
         <ExtensionBridge />
         {children}
         <ToastViewport />

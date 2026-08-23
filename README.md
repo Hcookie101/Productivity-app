@@ -44,10 +44,10 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-The app seeds sample **goals, obligations and a generated schedule** on first
-load so planning screens have life immediately. **Stats start empty** — real
-numbers arrive from the focus timer and the Chrome extension, never from fake
-data.
+The app starts **completely empty** — the way a real user would first see it.
+Create your first goal, add obligations, hit **Generate week** on the Schedule
+tab, and your stats build up from real focus sessions and real browsing time
+(Chrome extension). Nothing on screen is fake or pre-filled.
 
 ## AI provider: Google Gemini (default)
 
@@ -55,7 +55,7 @@ Orbit talks to **Google Gemini** through Gemini's OpenAI-compatible endpoint:
 
 1. Grab a free API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
 2. Settings → AI provider → **Google Gemini** (already the default)
-3. Model defaults to `gemini-2.5-flash` (try `gemini-2.5-pro` for heavier tasks)
+3. Model defaults to `gemini-3.6-flash`
 
 OpenAI, OpenRouter and any custom OpenAI-compatible endpoint are still
 supported — requests go through `/api/ai/chat` with a direct-browser fallback,

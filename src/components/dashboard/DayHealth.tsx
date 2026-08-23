@@ -11,6 +11,34 @@ function tone(score: number): { color: string; label: string; blurb: string } {
 }
 
 export function DayHealth({ stats }: { stats: StatsBundle }) {
+  const hasAnySignal =
+    stats.days.some((d) => d.focusedMin > 0) ||
+    stats.sites.length > 0 ||
+    stats.today.plannedMin > 0;
+
+  if (!hasAnySignal) {
+    return (
+      <div className="app-card flex h-full flex-col p-6">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-[15px] font-semibold text-ink">Day Health</h3>
+          <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-faint">
+            Collecting…
+          </span>
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
+          <div className="flex h-14 w-14 animate-floaty items-center justify-center rounded-full border border-dashed border-line text-2xl">
+            🛰️
+          </div>
+          <p className="mt-1 text-sm font-medium text-muted">No signals yet</p>
+          <p className="max-w-[240px] text-[12px] leading-5 text-faint">
+            Generate a schedule, run a focus session, or browse with the Orbit extension — your score wakes up from real
+            activity only.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const t = tone(stats.healthScore);
   return (
     <div className="app-card flex h-full flex-col p-6">
